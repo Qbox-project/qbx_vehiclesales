@@ -67,7 +67,6 @@ local function despawnOccasionsVehicles()
     for i = 1, #oSlot, 1 do
         local loc = oSlot[i]
         local oldVehicle = GetClosestVehicle(loc.x, loc.y, loc.z, 1.3, 0, 70)
-        
         if oldVehicle then
             QBCore.Functions.DeleteVehicle(oldVehicle)
         end
@@ -258,7 +257,7 @@ RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehdata)
     DoScreenFadeIn(250)
     CurrentVehicle = {}
 end)
- 
+
 RegisterNetEvent('qb-occasions:client:SellBackCar', function()
     local ped = PlayerPedId()
     if IsPedInAnyVehicle(ped, false) then
@@ -425,7 +424,6 @@ CreateThread(function()
                     minZ = v.z-2,
                     maxZ = v.z+2,
                 })
-        
                 VehicleZones:onPlayerInOut(function(isPointInside)
                     if isPointInside and IsCarSpawned(k2) then
                         exports['qb-core']:DrawText(Lang:t("menu.view_contract_int"), 'left')
