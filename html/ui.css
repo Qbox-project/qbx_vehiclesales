@@ -86,7 +86,7 @@ body {
     background: rgb(179, 179, 179);
 }
 
-#sell-vehicle > p {
+#sell-vehicle>p {
     text-align: center;
     line-height: 2.9vh;
     color: white;
@@ -95,12 +95,15 @@ body {
     font-weight: bold;
 }
 
-input.vehicle-sell-price::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+input.vehicle-sell-price::placeholder {
+    /* Chrome, Firefox, Opera, Safari 10.1+ */
     color: white;
-    opacity: 1; /* Firefox */
+    opacity: 1;
+    /* Firefox */
 }
 
-#buy-vehicle, #buy-vehicle-back {
+#buy-vehicle,
+#buy-vehicle-back {
     width: 60px;
     height: 35px;
     background: rgb(141, 141, 141);
@@ -113,11 +116,13 @@ input.vehicle-sell-price::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ 
     user-select: none;
 }
 
-#buy-vehicle:hover, #buy-vehicle-back:hover {
+#buy-vehicle:hover,
+#buy-vehicle-back:hover {
     background: rgb(179, 179, 179);
 }
 
-#buy-vehicle > p, #buy-vehicle-back > p {
+#buy-vehicle>p,
+#buy-vehicle-back>p {
     text-align: center;
     line-height: 2.9vh;
     color: white;
@@ -150,7 +155,7 @@ input.vehicle-sell-price::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ 
     top: 50%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-  }
+}
 
 .logo {
     width: 20%;
@@ -225,8 +230,8 @@ ul {
     background: none;
     font-family: 'Poppins';
     transition: background-color 0.1s ease-in-out;
-    overflow:hidden;
-    display:inline-block;
+    overflow: hidden;
+    display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
 }

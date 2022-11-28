@@ -93,7 +93,7 @@ var app = new Vue({
 });
 
 function setupForm(data) {
-    if(data.action === "sellVehicle" || data.action === "buyVehicle") {
+    if (data.action === "sellVehicle" || data.action === "buyVehicle") {
         document.body.style.display = "block";
     }
 
