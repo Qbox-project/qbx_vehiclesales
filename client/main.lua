@@ -150,7 +150,7 @@ local function sellVehicleWait(price)
 end
 
 local function SellData(data, model)
-    QBCore.Functions.TriggerCallback("qb-vehiclesales:server:CheckModelName",function(DataReturning)
+    QBCore.Functions.TriggerCallback("qb-vehiclesales:server:CheckModelName", function(DataReturning)
         local vehicleData = {}
 
         vehicleData.ent = GetVehiclePedIsUsing(cache.ped)
@@ -368,7 +368,7 @@ RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
         if owned then
             if balance < 1 then
                 QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
-                    if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                    if not vehicles or #vehicles < #Config.Zones[Zone].VehicleSpots then
                         openSellContract(true)
                     else
                         QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
@@ -414,11 +414,13 @@ RegisterNetEvent('qb-occasions:client:MainMenu', function()
         options = {
             {
                 title = Lang:t("menu.sell_vehicle"),
+                icon = "fa-solid fa-money-bill",
                 description = Lang:t("menu.sell_vehicle_help"),
                 event = 'qb-vehiclesales:client:SellVehicle'
             },
             {
                 title = Lang:t("menu.sell_back"),
+                icon = "fa-solid fa-warehouse",
                 description = Lang:t("menu.sell_back_help"),
                 event = 'qb-occasions:client:SellBackCar'
             }
