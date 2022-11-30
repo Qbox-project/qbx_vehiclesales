@@ -6,6 +6,7 @@ local CurrentVehicle = {}
 local SpawnZone = {}
 local EntityZones = {}
 local occasionVehicles = {}
+local listen = false
 
 -- Functions
 local function spawnOccasionsVehicles(vehicles)
@@ -165,8 +166,6 @@ local function SellData(data, model)
     end, model)
 end
 
-local listen = false
-
 local function Listen4Control(spot) -- Uses this to listen for controls to open various menus.
     listen = true
 
@@ -194,31 +193,33 @@ end
 ---- ** Main Zone Functions ** ----
 local function CreateZones()
     for k, v in pairs(Config.Zones) do
-        local SellSpot = PolyZone:Create(v.zone, {
-            name = k,
-            minZ = v.MinZ,
-            maxZ = v.MaxZ
-        })
-        SellSpot:onPlayerInOut(function(isPointInside)
-            if isPointInside and Zone ~= k then
-                Zone = k
+        AcitveZone[k] = lib.zones.poly({
+            points = v.zone,
+            thickness = 14,
+            onEnter = function(_)
+                if Zone ~= k then
+                    Zone = k
 
-                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
-                    despawnOccasionsVehicles()
-                    spawnOccasionsVehicles(vehicles)
-                end)
-            else
+                    QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+                        despawnOccasionsVehicles()
+                        spawnOccasionsVehicles(vehicles)
+                    end)
+                end
+            end,
+            onExit = function(_)
                 despawnOccasionsVehicles()
 
                 Zone = nil
             end
-        end)
-
-        AcitveZone[k] = SellSpot
+        })
     end
 end
 
 local function DeleteZones()
+    for k in pairs(Config.Zones) do
+        SpawnZone[k]:remove()
+    end
+
     for k in pairs(AcitveZone) do
         AcitveZone[k]:remove()
     end
@@ -246,7 +247,7 @@ RegisterNUICallback('sellVehicle', function(data, cb)
     local plate = QBCore.Functions.GetPlate(GetVehiclePedIsUsing(cache.ped)) -- Getting the plate and sending to the function
 
     SellData(data, plate)
-    
+
     cb('ok')
 end)
 
@@ -448,17 +449,19 @@ end)
 
 CreateThread(function()
     for k, cars in pairs(Config.Zones) do
-        SpawnZone[k] = CircleZone:Create(vec3(cars.SellVehicle.x, cars.SellVehicle.y, cars.SellVehicle.z), 3.0, {
-            name = "OCSell" .. k
-        })
-        SpawnZone[k]:onPlayerInOut(function(isPointInside)
-            if isPointInside and IsPedInAnyVehicle(cache.ped, false) then
-                lib.showTextUI(Lang:t("menu.interaction"))
+        SpawnZone[k] = lib.zones.sphere({
+            coords = cars.SellVehicle,
+            radius = 3.0,
+            onEnter = function(_)
+                if IsPedInAnyVehicle(cache.ped, false) then
+                    lib.showTextUI(Lang:t("menu.interaction"))
 
-                TextShown = true
+                    TextShown = true
 
-                Listen4Control()
-            else
+                    Listen4Control()
+                end
+            end,
+            onExit = function(_)
                 listen = false
 
                 if TextShown then
@@ -467,23 +470,24 @@ CreateThread(function()
                     lib.hideTextUI()
                 end
             end
-        end)
+        })
 
         if not Config.UseTarget then
             for k2, v in pairs(Config.Zones[k].VehicleSpots) do
-                local VehicleZones = BoxZone:Create(vec3(v.x, v.y, v.z), 4.3, 3.6, {
-                    name = "VehicleSpot" ..k .. k2,
-                    minZ = v.z - 2,
-                    maxZ = v.z + 2
-                })
-                VehicleZones:onPlayerInOut(function(isPointInside)
-                    if isPointInside and IsCarSpawned(k2) then
-                        lib.showTextUI(Lang:t("menu.view_contract_int"))
+                lib.zones.box({
+                    coords = v,
+                    size = vec3(5, 5, 5),
+                    rotation = 0.0,
+                    onEnter = function(_)
+                        if IsCarSpawned(k2) then
+                            lib.showTextUI(Lang:t("menu.view_contract_int"))
 
-                        TextShown = true
+                            TextShown = true
 
-                        Listen4Control(k2)
-                    else
+                            Listen4Control(k2)
+                        end
+                    end,
+                    onExit = function(_)
                         listen = false
 
                         if TextShown then
@@ -492,7 +496,7 @@ CreateThread(function()
                             lib.hideTextUI()
                         end
                     end
-                end)
+                })
             end
         end
     end
@@ -514,8 +518,10 @@ AddEventHandler('onResourceStart', function(resourceName)
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
-    if GetCurrentResourceName() == resourceName then
-        DeleteZones()
-        despawnOccasionsVehicles()
+    if GetCurrentResourceName() ~= resourceName then
+        return
     end
+
+    DeleteZones()
+    despawnOccasionsVehicles()
 end)
