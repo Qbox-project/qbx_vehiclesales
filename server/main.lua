@@ -68,10 +68,18 @@ RegisterNetEvent('qb-occasions:server:ReturnVehicle', function(vehicleData)
             TriggerClientEvent("qb-occasions:client:ReturnOwnedVehicle", src, result)
             TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
         else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_your_vehicle'), 'error', 3500)
+            TriggerClientEvent('ox_lib:notify', src, {
+                description = Lang:t('error.not_your_vehicle'),
+                duration = 3500,
+                type = 'error'
+            })
         end
     else
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.vehicle_does_not_exist'), 'error', 3500)
+        TriggerClientEvent('ox_lib:notify', src, {
+            description = Lang:t('error.vehicle_does_not_exist'),
+            duration = 3500,
+            type = 'error'
+        })
     end
 end)
 
@@ -106,7 +114,13 @@ RegisterNetEvent('qb-occasions:server:sellVehicleBack', function(vehData)
 
     Player.Functions.AddMoney('bank', payout)
 
-    TriggerClientEvent('QBCore:Notify', src, Lang:t('success.sold_car_for_price', { value = payout }), 'success', 5500)
+    TriggerClientEvent('ox_lib:notify', src, {
+        description = Lang:t('success.sold_car_for_price', {
+            value = payout
+        }),
+        duration = 5500,
+        type = 'success'
+    })
 
     MySQL.query('DELETE FROM player_vehicles WHERE plate = ?', {
         plate
@@ -170,7 +184,11 @@ RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
                 message = Lang:t('mail.message', { value = NewPrice, value2 = QBCore.Shared.Vehicles[result.model].name})
             })
         else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_enough_money'), 'error', 3500)
+            TriggerClientEvent('ox_lib:notify', src, {
+                description = Lang:t('error.not_enough_money'),
+                duration = 3500,
+                type = 'error'
+            })
         end
     end
 end)
