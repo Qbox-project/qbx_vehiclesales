@@ -4,10 +4,10 @@ game 'gta5'
 ui_page 'html/ui.html'
 
 shared_scripts {
-    'config.lua',
     '@qb-core/shared/locale.lua',
     'locales/en.lua',
     'locales/*.lua',
+    'config.lua',
     '@ox_lib/init.lua'
 }
 

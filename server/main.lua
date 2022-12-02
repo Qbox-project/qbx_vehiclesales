@@ -91,7 +91,15 @@ RegisterNetEvent('qb-occasions:server:sellVehicle', function(vehiclePrice, vehic
         vehicleData.plate,
         vehicleData.model
     })
-    MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)',{Player.PlayerData.citizenid, vehiclePrice, vehicleData.desc, vehicleData.plate, vehicleData.model,json.encode(vehicleData.mods), generateOID()})
+    MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+        Player.PlayerData.citizenid,
+        vehiclePrice,
+        vehicleData.desc,
+        vehicleData.plate,
+        vehicleData.model,
+        json.encode(vehicleData.mods),
+        generateOID()
+    })
 
     TriggerEvent("qb-log:server:CreateLog", "vehicleshop", "Vehicle for Sale", "red", "**" .. GetPlayerName(src) .. "** has a " .. vehicleData.model .. " priced at " .. vehiclePrice)
     TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)

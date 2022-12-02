@@ -57,7 +57,7 @@ local function spawnOccasionsVehicles(vehicles)
                     exports.ox_target:addEntity(networkId, {
                         {
                             name = 'qb-vehiclesales:vehicle-' .. i,
-                            icon = "fas fa-car",
+                            icon = "fa-solid fa-car",
                             label = Lang:t("menu.view_contract"),
                             distance = 2.0,
                             onSelect = function(_)
@@ -145,7 +145,12 @@ local function sellVehicleWait(price)
     Wait(1500)
     DoScreenFadeIn(250)
 
-    QBCore.Functions.Notify(Lang:t('success.car_up_for_sale', { value = price }), 'success')
+    lib.notify({
+        description = Lang:t('success.car_up_for_sale', {
+            value = price
+        }),
+        type = 'success'
+    })
 
     PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
 end
@@ -175,12 +180,16 @@ local function Listen4Control(spot) -- Uses this to listen for controls to open 
                 if spot then
                     TriggerEvent('qb-vehiclesales:client:OpenContract', spot)
                 else
-                    if IsPedInAnyVehicle(cache.ped, false) then
+                    if cache.vehicle then
                         listen = false
 
                         TriggerEvent('qb-occasions:client:MainMenu')
                     else
-                        QBCore.Functions.Notify(Lang:t("error.not_in_veh"), "error", 4500)
+                        lib.notify({
+                            description = Lang:t('error.not_in_veh'),
+                            duration = 4500,
+                            type = 'error'
+                        })
                     end
                 end
             end
@@ -282,7 +291,11 @@ RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehdata)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
         SetVehicleFuelLevel(veh, 100.0)
 
-        QBCore.Functions.Notify(Lang:t('success.vehicle_bought'), "success", 2500)
+        lib.notify({
+            description = Lang:t('success.vehicle_bought'),
+            duration = 2500,
+            type = 'success'
+        })
 
         TriggerEvent("vehiclekeys:client:SetOwner", vehdata.plate)
 
@@ -300,7 +313,7 @@ RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehdata)
 end)
 
 RegisterNetEvent('qb-occasions:client:SellBackCar', function()
-    if IsPedInAnyVehicle(cache.ped, false) then
+    if cache.vehicle then
         local vehicleData = {}
 
         vehicleData.model = GetEntityModel(cache.vehicle)
@@ -313,14 +326,26 @@ RegisterNetEvent('qb-occasions:client:SellBackCar', function()
 
                     QBCore.Functions.DeleteVehicle(cache.vehicle)
                 else
-                    QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+                    lib.notify({
+                        description = Lang:t('error.finish_payments'),
+                        duration = 3500,
+                        type = 'error'
+                    })
                 end
             else
-                QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+                lib.notify({
+                    description = Lang:t('error.not_your_vehicle'),
+                    duration = 3500,
+                    type = 'error'
+                })
             end
         end, vehicleData.plate)
     else
-        QBCore.Functions.Notify(Lang:t("error.not_in_veh"), "error", 4500)
+        lib.notify({
+            description = Lang:t('error.not_in_veh'),
+            duration = 4500,
+            type = 'error'
+        })
     end
 end)
 
@@ -336,7 +361,9 @@ RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehdata)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
         SetVehicleFuelLevel(veh, 100.0)
 
-        QBCore.Functions.Notify(Lang:t('info.vehicle_returned'))
+        lib.notify({
+            description = Lang:t('info.vehicle_returned'),
+        })
 
         TriggerEvent("vehiclekeys:client:SetOwner", vehdata.plate)
 
@@ -372,14 +399,26 @@ RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
                     if not vehicles or #vehicles < #Config.Zones[Zone].VehicleSpots then
                         openSellContract(true)
                     else
-                        QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
+                        lib.notify({
+                            description = Lang:t('error.no_space_on_lot'),
+                            duration = 3500,
+                            type = 'error'
+                        })
                     end
                 end)
             else
-                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+                lib.notify({
+                    description = Lang:t('error.finish_payments'),
+                    duration = 3500,
+                    type = 'error'
+                })
             end
         else
-            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+            lib.notify({
+                description = Lang:t('error.not_your_vehicle'),
+                duration = 3500,
+                type = 'error'
+            })
         end
     end, VehiclePlate)
 end)
@@ -404,7 +443,11 @@ RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(Contract)
             openBuyContract(info, CurrentVehicle)
         end, CurrentVehicle.owner)
     else
-        QBCore.Functions.Notify(Lang:t("error.not_for_sale"), 'error', 7500)
+        lib.notify({
+            description = Lang:t('error.not_for_sale'),
+            duration = 7500,
+            type = 'error'
+        })
     end
 end)
 
@@ -453,7 +496,7 @@ CreateThread(function()
             coords = cars.SellVehicle,
             radius = 3.0,
             onEnter = function(_)
-                if IsPedInAnyVehicle(cache.ped, false) then
+                if cache.vehicle then
                     lib.showTextUI(Lang:t("menu.interaction"))
 
                     TextShown = true
