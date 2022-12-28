@@ -356,28 +356,23 @@ RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(data)
 end)
 
 RegisterNetEvent('qb-occasions:client:MainMenu', function()
-    local MainMenu = {
-        {
-            isMenuHeader = true,
-            header = Config.Zones[Zone].BusinessName
-        },
-        {
-            header = Lang:t("menu.sell_vehicle"),
-            txt = Lang:t("menu.sell_vehicle_help"),
-            params = {
+    lib.registerContext({
+        id = 'qb_vehiclesales_menu',
+        title = Config.Zones[Zone].BusinessName,
+        options = {
+            {
+                title =  Lang:t("menu.sell_vehicle"),
+                description = Lang:t("menu.sell_vehicle_help"),
                 event = 'qb-vehiclesales:client:SellVehicle',
-            }
-        },
-        {
-            header = Lang:t("menu.sell_back"),
-            txt = Lang:t("menu.sell_back_help"),
-            params = {
+            },
+            {
+                title =  Lang:t("menu.sell_back"),
+                description = Lang:t("menu.sell_back_help"),
                 event = 'qb-occasions:client:SellBackCar',
-            }
-        }
-    }
-
-    exports['qb-menu']:openMenu(MainMenu)
+            },
+        },
+    })
+    lib.showContext('qb_vehiclesales_menu')
 end)
 
 -- Threads
