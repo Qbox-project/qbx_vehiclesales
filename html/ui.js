@@ -25,7 +25,7 @@ var app = new Vue({
                             desc: this.vehicleDescription
                         })
                     };
-                    fetch("https://qb-vehiclesales/sellVehicle", requestOptions);
+                    fetch(`https://${GetParentResourceName()}/sellVehicle`, requestOptions);
                     this.close();
                 } else {
                     this.errors.push("Price must be a numeric value only");
@@ -40,7 +40,7 @@ var app = new Vue({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({})
             };
-            fetch("https://qb-vehiclesales/buyVehicle", requestOptions);
+            fetch(`https://${GetParentResourceName()}/buyVehicle`, requestOptions);
             this.close();
         },
         takeBack() {
@@ -49,7 +49,7 @@ var app = new Vue({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({})
             };
-            fetch("https://qb-vehiclesales/takeVehicleBack", requestOptions);
+            fetch(`https://${GetParentResourceName()}/takeVehicleBack`, requestOptions);
             this.close();
         },
         close() {
@@ -58,7 +58,7 @@ var app = new Vue({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({})
             };
-            fetch("https://qb-vehiclesales/close", requestOptions);
+            fetch(`https://${GetParentResourceName()}/close`, requestOptions);
 
             this.resetForm();
             this.hideForm();
