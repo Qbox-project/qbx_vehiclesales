@@ -29,12 +29,11 @@ server_scripts {
 }
 
 files {
-	'html/reset.css',
 	'html/logo.svg',
 	'html/ui.css',
 	'html/ui.html',
 	'html/vue.min.js',
-	'html/ui.js',
+	'html/ui.js'
 }
 
 lua54 'yes'
