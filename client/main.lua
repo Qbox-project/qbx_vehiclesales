@@ -128,7 +128,7 @@ local function sellVehicleWait(price)
 end
 
 local function SellData(data, model)
-    QBCore.Functions.TriggerCallback("qb-vehiclesales:server:CheckModelName",function(DataReturning)
+    lib.callback("qb-vehiclesales:server:CheckModelName", false, function(DataReturning)
         local vehicleData = {}
         vehicleData.ent = GetVehiclePedIsUsing(PlayerPedId())
         vehicleData.model = DataReturning
@@ -178,7 +178,7 @@ local function CreateZones()
         SellSpot:onPlayerInOut(function(isPointInside)
             if isPointInside and Zone ~= k then
                 Zone = k
-                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+                lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
                     despawnOccasionsVehicles()
                     spawnOccasionsVehicles(vehicles)
                 end)
@@ -304,10 +304,9 @@ end)
 
 RegisterNetEvent('qb-occasion:client:refreshVehicles', function()
     if Zone then
-        QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
-            despawnOccasionsVehicles()
-            spawnOccasionsVehicles(vehicles)
-        end)
+        local vehicles = lib.callback.await('qb-occasions:server:getVehicles')
+        despawnOccasionsVehicles()
+        spawnOccasionsVehicles(vehicles)
     end
 end)
 
@@ -316,7 +315,7 @@ RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
     QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
         if owned then
             if balance < 1 then
-                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+                lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
                     if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
                         openSellContract(true)
                     else
@@ -334,25 +333,25 @@ end)
 
 RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(data)
     CurrentVehicle = occasionVehicles[Zone][data.Contract]
-    if CurrentVehicle then
-        QBCore.Functions.TriggerCallback('qb-occasions:server:getSellerInformation', function(info)
-            if info then
-                info.charinfo = json.decode(info.charinfo)
-            else
-                info = {}
-                info.charinfo = {
-                    firstname = Lang:t('charinfo.firstname'),
-                    lastname = Lang:t('charinfo.lastname'),
-                    account = Lang:t('charinfo.account'),
-                    phone = Lang:t('charinfo.phone')
-                }
-            end
-
-            openBuyContract(info, CurrentVehicle)
-        end, CurrentVehicle.owner)
-    else
+    if not CurrentVehicle then
         QBCore.Functions.Notify(Lang:t("error.not_for_sale"), 'error', 7500)
+        return
     end
+
+    local info = lib.callback.await('qb-occasions:server:getSellerInformation', false, CurrentVehicle.owner)
+    if info then
+        info.charinfo = json.decode(info.charinfo)
+    else
+        info = {}
+        info.charinfo = {
+            firstname = Lang:t('charinfo.firstname'),
+            lastname = Lang:t('charinfo.lastname'),
+            account = Lang:t('charinfo.account'),
+            phone = Lang:t('charinfo.phone')
+        }
+    end
+
+    openBuyContract(info, CurrentVehicle)
 end)
 
 RegisterNetEvent('qb-occasions:client:MainMenu', function()
