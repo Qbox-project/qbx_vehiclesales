@@ -10,29 +10,23 @@ end
 
 -- Callbacks
 
-QBCore.Functions.CreateCallback('qb-occasions:server:getVehicles', function(_, cb)
-    local result = MySQL.query.await('SELECT * FROM occasion_vehicles', {})
+lib.callback.register('qb-occasions:server:getVehicles', function()
+    local result = MySQL.query.await('SELECT * FROM occasion_vehicles')
     if result[1] then
-        cb(result)
-    else
-        cb(nil)
+        return result
     end
 end)
 
-QBCore.Functions.CreateCallback("qb-occasions:server:getSellerInformation", function(_, cb, citizenid)
-    MySQL.query('SELECT * FROM players WHERE citizenid = ?', {citizenid}, function(result)
-        if result[1] then
-            cb(result[1])
-        else
-            cb(nil)
-        end
-    end)
+lib.callback.register('qb-occasions:server:getSellerInformation', function(_, citizenid)
+    local result = MySQL.query.await('SELECT * FROM players WHERE citizenid = ?', {citizenid})
+    if result[1] then
+        return result[1]
+    end
 end)
 
-QBCore.Functions.CreateCallback("qb-vehiclesales:server:CheckModelName", function(_, cb, plate)
+lib.callback.register('qb-vehiclesales:server:CheckModelName', function(_, plate)
     if plate then
-        local ReturnData = MySQL.scalar.await("SELECT vehicle FROM player_vehicles WHERE plate = ?", {plate})
-        cb(ReturnData)
+        return MySQL.scalar.await("SELECT vehicle FROM player_vehicles WHERE plate = ?", {plate})
     end
 end)
 
