@@ -1,13 +1,9 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
-
--- Functions
+local VEHICLES = exports.qbx_core:GetVehiclesByName()
 
 local function generateOID()
     local num = math.random(1, 10) .. math.random(111, 999)
     return "OC" .. num
 end
-
--- Callbacks
 
 lib.callback.register('qb-occasions:server:getVehicles', function()
     local result = MySQL.query.await('SELECT * FROM occasion_vehicles')
@@ -29,19 +25,29 @@ lib.callback.register('qb-vehiclesales:server:CheckModelName', function(_, plate
     end
 end)
 
--- Events
+lib.callback.register('qbx_vehiclesales:server:spawnVehicle', function (source, vehicle, coords, warp)
+    local vehmods = json.decode(vehicle.mods)
+    local netId = SpawnVehicle(source, vehicle.model, coords, warp, vehmods)
+    local veh = NetworkGetEntityFromNetworkId(netId)
+    if not veh or veh == 0 then return end
+    
+    SetVehicleNumberPlateText(veh, vehicle.plate)
+    TriggerClientEvent("vehiclekeys:client:SetOwner", source, vehicle.plate)
+    return netId
+end)
 
 RegisterNetEvent('qb-occasions:server:ReturnVehicle', function(vehicleData)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = exports.qbx_core:GetPlayer(src)
     local result = MySQL.query.await('SELECT * FROM occasion_vehicles WHERE plate = ? AND occasionid = ?', {vehicleData.plate, vehicleData.oid})
-    
+
     if not result[1] then
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.vehicle_does_not_exist'), 'error', 3500)
+        exports.qbx_core:Notify(src, Lang:t('error.vehicle_does_not_exist'), 'error', 3500)
         return
     end
+
     if result[1].seller ~= player.PlayerData.citizenid then
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_your_vehicle'), 'error', 3500)
+        exports.qbx_core:Notify(src, Lang:t('error.not_your_vehicle'), 'error', 3500)
         return
     end
 
@@ -53,7 +59,7 @@ end)
 
 RegisterNetEvent('qb-occasions:server:sellVehicle', function(vehiclePrice, vehicleData)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = exports.qbx_core:GetPlayer(src)
     MySQL.query('DELETE FROM player_vehicles WHERE plate = ? AND vehicle = ?',{vehicleData.plate, vehicleData.model})
     MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)',{player.PlayerData.citizenid, vehiclePrice, vehicleData.desc, vehicleData.plate, vehicleData.model,json.encode(vehicleData.mods), generateOID()})
     TriggerEvent("qb-log:server:CreateLog", "vehicleshop", "Vehicle for Sale", "red","**" .. GetPlayerName(src) .. "** has a " .. vehicleData.model .. " priced at " .. vehiclePrice)
@@ -63,7 +69,7 @@ end)
 ---@param model number
 ---@return number price defaults to 0
 local function getVehPrice(model)
-    for _, v in pairs(QBCore.Shared.Vehicles) do
+    for _, v in pairs(VEHICLES) do
         if v.hash == model then
             return tonumber(v.price)
         end
@@ -73,27 +79,27 @@ end
 
 RegisterNetEvent('qb-occasions:server:sellVehicleBack', function(vehData)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = exports.qbx_core:GetPlayer(src)
     local plate = vehData.plate
     local price = getVehPrice(vehData.model)
     local payout = math.floor(price * 0.5) -- This will give you half of the cars value
     player.Functions.AddMoney('bank', payout)
-    TriggerClientEvent('QBCore:Notify', src, Lang:t('success.sold_car_for_price', { value = payout }), 'success', 5500)
+    exports.qbx_core:Notify(src, Lang:t('success.sold_car_for_price', { value = payout }), 'success', 5500)
     MySQL.query('DELETE FROM player_vehicles WHERE plate = ?', {plate})
 end)
 
 RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
     local src = source
-    local player = QBCore.Functions.GetPlayer(src)
+    local player = exports.qbx_core:GetPlayer(src)
     local result = MySQL.query.await('SELECT * FROM occasion_vehicles WHERE plate = ? AND occasionid = ?',{vehicleData.plate, vehicleData.oid})
     if not result[1] or not next(result[1]) then return end
     if player.PlayerData.money.bank < result[1].price then
-        TriggerClientEvent('QBCore:Notify', src, Lang:t('error.not_enough_money'), 'error', 3500)
+        exports.qbx_core:Notify(src, Lang:t('error.not_enough_money'), 'error', 3500)
         return
     end
 
     local sellerCitizenId = result[1].seller
-    local sellerData = QBCore.Functions.GetPlayerByCitizenId(sellerCitizenId)
+    local sellerData = exports.qbx_core:GetPlayerByCitizenId(sellerCitizenId)
     local newPrice = math.ceil((result[1].price / 100) * 77)
     player.Functions.RemoveMoney('bank', result[1].price)
     MySQL.insert(
@@ -122,6 +128,6 @@ RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
     TriggerEvent('qb-phone:server:sendNewMailToOffline', sellerCitizenId, {
         sender = Lang:t('mail.sender'),
         subject = Lang:t('mail.subject'),
-        message = Lang:t('mail.message', { value = newPrice, value2 = QBCore.Shared.Vehicles[result[1].model].name})
+        message = Lang:t('mail.message', { value = newPrice, value2 = VEHICLES[result[1].model].name})
     })
 end)

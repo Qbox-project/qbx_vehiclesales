@@ -1,4 +1,3 @@
-local QBCore = exports['qbx-core']:GetCoreObject()
 local Zone = nil
 local TextShown = false
 local AcitveZone = {}
@@ -32,7 +31,7 @@ local function spawnOccasionsVehicles(vehicles)
                     mods  = vehicles[i].mods
                 }
 
-                QBCore.Functions.SetVehicleProperties(occasionVehicles[Zone][i].car, json.decode(occasionVehicles[Zone][i].mods))
+                lib.setVehicleProperties(occasionVehicles[Zone][i].car, json.decode(vehicles[i].mods))
 
                 SetModelAsNoLongerNeeded(model)
                 SetVehicleOnGroundProperly(occasionVehicles[Zone][i].car)
@@ -68,7 +67,7 @@ local function despawnOccasionsVehicles()
         local loc = oSlot[i]
         local oldVehicle = GetClosestVehicle(loc.x, loc.y, loc.z, 1.3, 0, 70)
         if oldVehicle then
-            QBCore.Functions.DeleteVehicle(oldVehicle)
+            DeleteVehicle(oldVehicle)
         end
 
         if EntityZones[i] and Config.UseTarget then
@@ -79,29 +78,26 @@ local function despawnOccasionsVehicles()
 end
 
 local function openSellContract(bool)
-    local pData = QBCore.Functions.GetPlayerData()
-
     SetNuiFocus(bool, bool)
     SendNUIMessage({
         action = "sellVehicle",
         showTakeBackOption = false,
         bizName = Config.Zones[Zone].BusinessName,
         sellerData = {
-            firstname = pData.charinfo.firstname,
-            lastname = pData.charinfo.lastname,
-            account = pData.charinfo.account,
-            phone = pData.charinfo.phone
+            firstname = QBX.PlayerData.charinfo.firstname,
+            lastname = QBX.PlayerData.charinfo.lastname,
+            account = QBX.PlayerData.charinfo.account,
+            phone = QBX.PlayerData.charinfo.phone
         },
-        plate = QBCore.Functions.GetPlate(GetVehiclePedIsUsing(PlayerPedId()))
+        plate = GetPlate(cache.vehicle)
     })
 end
 
 local function openBuyContract(sellerData, vehicleData)
-    local pData = QBCore.Functions.GetPlayerData()
     SetNuiFocus(true, true)
     SendNUIMessage({
         action = "buyVehicle",
-        showTakeBackOption = sellerData.charinfo.firstname == pData.charinfo.firstname and sellerData.charinfo.lastname == pData.charinfo.lastname,
+        showTakeBackOption = sellerData.charinfo.firstname == QBX.PlayerData.charinfo.firstname and sellerData.charinfo.lastname == QBX.PlayerData.charinfo.lastname,
         bizName = Config.Zones[Zone].BusinessName,
         sellerData = {
             firstname = sellerData.charinfo.firstname,
@@ -120,20 +116,20 @@ end
 local function sellVehicleWait(price)
     DoScreenFadeOut(250)
     Wait(250)
-    QBCore.Functions.DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
+    DeleteVehicle(cache.vehicle)
     Wait(1500)
     DoScreenFadeIn(250)
-    QBCore.Functions.Notify(Lang:t('success.car_up_for_sale', { value = price }), 'success')
-    PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", 0, 0, 1)
+    exports.qbx_core:Notify(Lang:t('success.car_up_for_sale', { value = price }), 'success')
+    PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", false, 0, true)
 end
 
 local function SellData(data, model)
     lib.callback("qb-vehiclesales:server:CheckModelName", false, function(DataReturning)
         local vehicleData = {}
-        vehicleData.ent = GetVehiclePedIsUsing(PlayerPedId())
+        vehicleData.ent = cache.vehicle
         vehicleData.model = DataReturning
         vehicleData.plate = model
-        vehicleData.mods = QBCore.Functions.GetVehicleProperties(vehicleData.ent)
+        vehicleData.mods = lib.getVehicleProperties(vehicleData.ent)
         vehicleData.desc = data.desc
         TriggerServerEvent('qb-occasions:server:sellVehicle', data.price, vehicleData)
         sellVehicleWait(data.price)
@@ -150,12 +146,12 @@ local function Listen4Control(spot) -- Uses this to listen for controls to open 
                     local data = {Contract = spot}
                     TriggerEvent('qb-vehiclesales:client:OpenContract', data)
                 else
-                    if IsPedInAnyVehicle(PlayerPedId(), false) then
+                    if IsPedInAnyVehicle(cache.ped, false) then
                         listen = false
                         TriggerEvent('qb-occasions:client:MainMenu')
                         --TriggerEvent('qb-vehiclesales:client:SellVehicle')
                     else
-                        QBCore.Functions.Notify(Lang:t("error.not_in_veh"), "error", 4500)
+                        exports.qbx_core:Notify(Lang:t("error.not_in_veh"), "error", 4500)
                     end
                 end
             end
@@ -215,7 +211,7 @@ end
 -- NUI Callbacks
 
 RegisterNUICallback('sellVehicle', function(data, cb)
-    local plate = QBCore.Functions.GetPlate(GetVehiclePedIsUsing(PlayerPedId())) --Getting the plate and sending to the function
+    local plate = GetPlate(cache.vehicle) --Getting the plate and sending to the function
     SellData(data,plate)
     cb('ok')
 end)
@@ -235,68 +231,56 @@ RegisterNUICallback('takeVehicleBack', function(_, cb)
     cb('ok')
 end)
 
--- Events
-
 RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehdata)
-    local vehmods = json.decode(vehdata.mods)
-
     DoScreenFadeOut(250)
     Wait(500)
-    QBCore.Functions.SpawnVehicle(vehdata.model, function(veh)
-        SetVehicleNumberPlateText(veh, vehdata.plate)
-        SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-        SetVehicleFuelLevel(veh, 100)
-        QBCore.Functions.Notify(Lang:t('success.vehicle_bought'), "success", 2500)
-        TriggerEvent("vehiclekeys:client:SetOwner", vehdata.plate)
-        SetVehicleEngineOn(veh, true, true)
-        Wait(500)
-        QBCore.Functions.SetVehicleProperties(veh, vehmods)
-    end, Config.Zones[Zone].BuyVehicle, true)
+    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehdata, Config.Zones[Zone].BuyVehicle, false)
+    local timeout = 100
+    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
+        Wait(10)
+        timeout -= 1
+    end
+    SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
+    SetVehicleFuelLevel(veh, 100)
+    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), "success", 2500)
     Wait(500)
     DoScreenFadeIn(250)
     CurrentVehicle = {}
 end)
 
 RegisterNetEvent('qb-occasions:client:SellBackCar', function()
-    local ped = PlayerPedId()
-    if IsPedInAnyVehicle(ped, false) then
+    if cache.vehicle then
         local vehicleData = {}
-        local vehicle = GetVehiclePedIsIn(ped, false)
-        vehicleData.model = GetEntityModel(vehicle)
-        vehicleData.plate = GetVehicleNumberPlateText(vehicle)
-        QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
-            if owned then
-                if balance < 1 then
-                    TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
-                    QBCore.Functions.DeleteVehicle(vehicle)
-                else
-                    QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
-                end
+        vehicleData.model = GetEntityModel(cache.vehicle)
+        vehicleData.plate = GetVehicleNumberPlateText(cache.vehicle)
+        local owned, balance = lib.callback.await('qb-garage:server:checkVehicleOwner', false, vehicleData.plate)
+        if owned then
+            if balance < 1 then
+                TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
+                DeleteVehicle(cache.vehicle)
             else
-                QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+                exports.qbx_core:Notify(Lang:t('error.finish_payments'), 'error', 3500)
             end
-        end, vehicleData.plate)
+        else
+            exports.qbx_core:Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        end
     else
-        QBCore.Functions.Notify(Lang:t("error.not_in_veh"), "error", 4500)
+        exports.qbx_core:Notify(Lang:t("error.not_in_veh"), "error", 4500)
     end
 end)
 
 RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehdata)
-    local vehmods = json.decode(vehdata.mods)
     DoScreenFadeOut(250)
     Wait(500)
-    QBCore.Functions.SpawnVehicle(vehdata.model, function(veh)
-        SetVehicleNumberPlateText(veh, vehdata.plate)
-        SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
-        TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
-        SetVehicleFuelLevel(veh, 100)
-        QBCore.Functions.Notify(Lang:t('info.vehicle_returned'))
-        TriggerEvent("vehiclekeys:client:SetOwner", vehdata.plate)
-        SetVehicleEngineOn(veh, true, true)
-        Wait(500)
-        QBCore.Functions.SetVehicleProperties(veh, vehmods)
-    end, Config.Zones[Zone].BuyVehicle, true)
+    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehdata, Config.Zones[Zone].BuyVehicle, false)
+    local timeout = 100
+    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
+        Wait(10)
+        timeout -= 1
+    end
+    SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
+    SetVehicleFuelLevel(veh, 100)
+    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), "success", 2500)
     Wait(500)
     DoScreenFadeIn(250)
     CurrentVehicle = {}
@@ -311,30 +295,29 @@ RegisterNetEvent('qb-occasion:client:refreshVehicles', function()
 end)
 
 RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
-    local VehiclePlate = QBCore.Functions.GetPlate(GetVehiclePedIsIn(PlayerPedId()))
-    QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
-        if owned then
-            if balance < 1 then
-                lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
-                    if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
-                        openSellContract(true)
-                    else
-                        QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
-                    end
-                end)
-            else
-                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
-            end
+    local VehiclePlate = GetPlate(cache.vehicle)
+    local owned, balance = lib.callback.await('qb-garage:server:checkVehicleOwner', false, VehiclePlate)
+    if owned then
+        if balance < 1 then
+            lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
+                if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                    openSellContract(true)
+                else
+                    exports.qbx_core:Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
+                end
+            end)
         else
-            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+            exports.qbx_core:Notify(Lang:t('error.finish_payments'), 'error', 3500)
         end
-    end, VehiclePlate)
+    else
+        exports.qbx_core:Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+    end
 end)
 
 RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(data)
     CurrentVehicle = occasionVehicles[Zone][data.Contract]
     if not CurrentVehicle then
-        QBCore.Functions.Notify(Lang:t("error.not_for_sale"), 'error', 7500)
+        exports.qbx_core:Notify(Lang:t("error.not_for_sale"), 'error', 7500)
         return
     end
 
@@ -398,7 +381,7 @@ CreateThread(function()
         })
 
         SpawnZone[k]:onPlayerInOut(function(isPointInside)
-            if isPointInside and IsPedInAnyVehicle(PlayerPedId(), false) then
+            if isPointInside and IsPedInAnyVehicle(cache.ped, false) then
                 exports['qbx-core']:DrawText(Lang:t("menu.interaction"), 'left')
                 TextShown = true
                 Listen4Control()
