@@ -46,8 +46,11 @@ local Translations = {
         message = 'Získali jste $%{value} za prodej svého vozidla %{value2}.',
     }
 }
-Lang = Locale:new({
-    phrases = Translations,
-    warnOnMissing = true
-})
---translate by stepan_valic
+
+if GetConvar('qb_locale', 'en') == 'cs' then
+    Lang = Locale:new({
+        phrases = Translations,
+        warnOnMissing = true,
+        fallbackLang = Lang,
+    })
+end
