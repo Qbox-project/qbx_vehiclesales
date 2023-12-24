@@ -1,54 +1,51 @@
-local Zone = nil
-local TextShown = false
-local AcitveZone = {}
-local CurrentVehicle = {}
-local SpawnZone = {}
-local EntityZones = {}
+local zone = nil
+local textShown = false
+local acitveZone = {}
+local currentVehicle = {}
+local spawnZone = {}
+local entityZones = {}
 local occasionVehicles = {}
 
 -- Functions
 
 local function spawnOccasionsVehicles(vehicles)
-    if Zone then
-        local oSlot = Config.Zones[Zone].VehicleSpots
-        if not occasionVehicles[Zone] then occasionVehicles[Zone] = {} end
+    if zone then
+        local oSlot = Config.Zones[zone].VehicleSpots
+        if not occasionVehicles[zone] then occasionVehicles[zone] = {} end
         if vehicles then
             for i = 1, #vehicles, 1 do
-                local model = GetHashKey(vehicles[i].model)
-                RequestModel(model)
-                while not HasModelLoaded(model) do
-                    Wait(0)
-                end
-                occasionVehicles[Zone][i] = {
-                    car   = CreateVehicle(model, oSlot[i].x, oSlot[i].y, oSlot[i].z, false, false),
-                    loc   = vector3(oSlot[i].x, oSlot[i].y, oSlot[i].z),
+                local model = joaat(vehicles[i].model)
+                lib.requestModel(model)
+                occasionVehicles[zone][i] = {
+                    car = CreateVehicle(model, oSlot[i].x, oSlot[i].y, oSlot[i].z, false, false),
+                    loc = vector3(oSlot[i].x, oSlot[i].y, oSlot[i].z),
                     price = vehicles[i].price,
                     owner = vehicles[i].seller,
                     model = vehicles[i].model,
                     plate = vehicles[i].plate,
-                    oid   = vehicles[i].occasionid,
-                    desc  = vehicles[i].description,
-                    mods  = vehicles[i].mods
+                    oid = vehicles[i].occasionid,
+                    desc = vehicles[i].description,
+                    mods = vehicles[i].mods
                 }
 
-                lib.setVehicleProperties(occasionVehicles[Zone][i].car, json.decode(vehicles[i].mods))
+                lib.setVehicleProperties(occasionVehicles[zone][i].car, json.decode(vehicles[i].mods))
 
                 SetModelAsNoLongerNeeded(model)
-                SetVehicleOnGroundProperly(occasionVehicles[Zone][i].car)
-                SetEntityInvincible(occasionVehicles[Zone][i].car,true)
-                SetEntityHeading(occasionVehicles[Zone][i].car, oSlot[i].w)
-                SetVehicleDoorsLocked(occasionVehicles[Zone][i].car, 3)
-                SetVehicleNumberPlateText(occasionVehicles[Zone][i].car, occasionVehicles[Zone][i].oid)
-                FreezeEntityPosition(occasionVehicles[Zone][i].car,true)
+                SetVehicleOnGroundProperly(occasionVehicles[zone][i].car)
+                SetEntityInvincible(occasionVehicles[zone][i].car,true)
+                SetEntityHeading(occasionVehicles[zone][i].car, oSlot[i].w)
+                SetVehicleDoorsLocked(occasionVehicles[zone][i].car, 3)
+                SetVehicleNumberPlateText(occasionVehicles[zone][i].car, occasionVehicles[zone][i].oid)
+                FreezeEntityPosition(occasionVehicles[zone][i].car,true)
                 if Config.UseTarget then
-                    if not EntityZones then EntityZones = {} end
-                    EntityZones[i] = exports['qb-target']:AddTargetEntity(occasionVehicles[Zone][i].car, {
+                    if not entityZones then entityZones = {} end
+                    entityZones[i] = exports['qb-target']:AddTargetEntity(occasionVehicles[zone][i].car, {
                         options = {
                             {
-                                type = "client",
-                                event = "qb-vehiclesales:client:OpenContract",
-                                icon = "fas fa-car",
-                                label = Lang:t("menu.view_contract"),
+                                type = 'client',
+                                event = 'qb-vehiclesales:client:OpenContract',
+                                icon = 'fas fa-car',
+                                label = Lang:t('menu.view_contract'),
                                 Contract = i
                             }
                         },
@@ -61,8 +58,8 @@ local function spawnOccasionsVehicles(vehicles)
 end
 
 local function despawnOccasionsVehicles()
-    if not Zone then return end
-    local oSlot = Config.Zones[Zone].VehicleSpots
+    if not zone then return end
+    local oSlot = Config.Zones[zone].VehicleSpots
     for i = 1, #oSlot, 1 do
         local loc = oSlot[i]
         local oldVehicle = GetClosestVehicle(loc.x, loc.y, loc.z, 1.3, 0, 70)
@@ -70,19 +67,19 @@ local function despawnOccasionsVehicles()
             DeleteVehicle(oldVehicle)
         end
 
-        if EntityZones[i] and Config.UseTarget then
-            exports['qb-target']:RemoveZone(EntityZones[i])
+        if entityZones[i] and Config.UseTarget then
+            exports['qb-target']:RemoveZone(entityZones[i])
         end
     end
-    EntityZones = {}
+    entityZones = {}
 end
 
 local function openSellContract(bool)
     SetNuiFocus(bool, bool)
     SendNUIMessage({
-        action = "sellVehicle",
+        action = 'sellVehicle',
         showTakeBackOption = false,
-        bizName = Config.Zones[Zone].BusinessName,
+        bizName = Config.Zones[zone].BusinessName,
         sellerData = {
             firstname = QBX.PlayerData.charinfo.firstname,
             lastname = QBX.PlayerData.charinfo.lastname,
@@ -96,9 +93,9 @@ end
 local function openBuyContract(sellerData, vehicleData)
     SetNuiFocus(true, true)
     SendNUIMessage({
-        action = "buyVehicle",
+        action = 'buyVehicle',
         showTakeBackOption = sellerData.charinfo.firstname == QBX.PlayerData.charinfo.firstname and sellerData.charinfo.lastname == QBX.PlayerData.charinfo.lastname,
-        bizName = Config.Zones[Zone].BusinessName,
+        bizName = Config.Zones[zone].BusinessName,
         sellerData = {
             firstname = sellerData.charinfo.firstname,
             lastname = sellerData.charinfo.lastname,
@@ -120,14 +117,14 @@ local function sellVehicleWait(price)
     Wait(1500)
     DoScreenFadeIn(250)
     exports.qbx_core:Notify(Lang:t('success.car_up_for_sale', { value = price }), 'success')
-    PlaySound(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", false, 0, true)
+    PlaySound(-1, 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET', false, 0, true)
 end
 
-local function SellData(data, model)
-    lib.callback("qb-vehiclesales:server:CheckModelName", false, function(DataReturning)
+local function sellData(data, model)
+    lib.callback('qb-vehiclesales:server:CheckModelName', false, function(dataReturning)
         local vehicleData = {}
         vehicleData.ent = cache.vehicle
-        vehicleData.model = DataReturning
+        vehicleData.model = dataReturning
         vehicleData.plate = model
         vehicleData.mods = lib.getVehicleProperties(vehicleData.ent)
         vehicleData.desc = data.desc
@@ -137,7 +134,7 @@ local function SellData(data, model)
 end
 
 local listen = false
-local function Listen4Control(spot) -- Uses this to listen for controls to open various menus.
+local function listenForControl(spot) -- Uses this to listen for controls to open various menus.
     listen = true
     CreateThread(function()
         while listen do
@@ -146,12 +143,12 @@ local function Listen4Control(spot) -- Uses this to listen for controls to open 
                     local data = {Contract = spot}
                     TriggerEvent('qb-vehiclesales:client:OpenContract', data)
                 else
-                    if IsPedInAnyVehicle(cache.ped, false) then
+                    if cache.vehicle then
                         listen = false
                         TriggerEvent('qb-occasions:client:MainMenu')
                         --TriggerEvent('qb-vehiclesales:client:SellVehicle')
                     else
-                        exports.qbx_core:Notify(Lang:t("error.not_in_veh"), "error", 4500)
+                        exports.qbx_core:Notify(Lang:t('error.not_in_veh'), 'error', 4500)
                     end
                 end
             end
@@ -160,9 +157,9 @@ local function Listen4Control(spot) -- Uses this to listen for controls to open 
     end)
 end
 
----- ** Main Zone Functions ** ----
+---- ** Main zone Functions ** ----
 
-local function CreateZones()
+local function createZones()
     for k, v in pairs(Config.Zones) do
         local SellSpot = PolyZone:Create(v.PolyZone, {
             name = k,
@@ -172,33 +169,33 @@ local function CreateZones()
         })
 
         SellSpot:onPlayerInOut(function(isPointInside)
-            if isPointInside and Zone ~= k then
-                Zone = k
+            if isPointInside and zone ~= k then
+                zone = k
                 lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
                     despawnOccasionsVehicles()
                     spawnOccasionsVehicles(vehicles)
                 end)
             else
                 despawnOccasionsVehicles()
-                Zone = nil
+                zone = nil
             end
         end)
-        AcitveZone[k] = SellSpot
+        acitveZone[k] = SellSpot
     end
 end
 
-local function DeleteZones()
-    for k in pairs(AcitveZone) do
-        AcitveZone[k]:destroy()
+local function deleteZones()
+    for k in pairs(acitveZone) do
+        acitveZone[k]:destroy()
     end
-    AcitveZone = {}
+    acitveZone = {}
 end
 
 local function IsCarSpawned(Car)
     local bool = false
 
     if occasionVehicles then
-        for k in pairs(occasionVehicles[Zone]) do
+        for k in pairs(occasionVehicles[zone]) do
             if k == Car then
                 bool = true
                 break
@@ -212,7 +209,7 @@ end
 
 RegisterNUICallback('sellVehicle', function(data, cb)
     local plate = GetPlate(cache.vehicle) --Getting the plate and sending to the function
-    SellData(data,plate)
+    sellData(data,plate)
     cb('ok')
 end)
 
@@ -222,30 +219,30 @@ RegisterNUICallback('close', function(_, cb)
 end)
 
 RegisterNUICallback('buyVehicle', function(_, cb)
-    TriggerServerEvent('qb-occasions:server:buyVehicle', CurrentVehicle)
+    TriggerServerEvent('qb-occasions:server:buyVehicle', currentVehicle)
     cb('ok')
 end)
 
 RegisterNUICallback('takeVehicleBack', function(_, cb)
-    TriggerServerEvent('qb-occasions:server:ReturnVehicle', CurrentVehicle)
+    TriggerServerEvent('qb-occasions:server:ReturnVehicle', currentVehicle)
     cb('ok')
 end)
 
-RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehdata)
+RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehData)
     DoScreenFadeOut(250)
     Wait(500)
-    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehdata, Config.Zones[Zone].BuyVehicle, false)
+    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
         timeout -= 1
     end
-    SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
+    SetEntityHeading(veh, Config.Zones[zone].BuyVehicle.w)
     SetVehicleFuelLevel(veh, 100)
-    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), "success", 2500)
+    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), 'success', 2500)
     Wait(500)
     DoScreenFadeIn(250)
-    CurrentVehicle = {}
+    currentVehicle = {}
 end)
 
 RegisterNetEvent('qb-occasions:client:SellBackCar', function()
@@ -265,29 +262,29 @@ RegisterNetEvent('qb-occasions:client:SellBackCar', function()
             exports.qbx_core:Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
         end
     else
-        exports.qbx_core:Notify(Lang:t("error.not_in_veh"), "error", 4500)
+        exports.qbx_core:Notify(Lang:t('error.not_in_veh'), 'error', 4500)
     end
 end)
 
-RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehdata)
+RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehData)
     DoScreenFadeOut(250)
     Wait(500)
-    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehdata, Config.Zones[Zone].BuyVehicle, false)
+    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
         timeout -= 1
     end
-    SetEntityHeading(veh, Config.Zones[Zone].BuyVehicle.w)
+    SetEntityHeading(veh, Config.Zones[zone].BuyVehicle.w)
     SetVehicleFuelLevel(veh, 100)
-    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), "success", 2500)
+    exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), 'success', 2500)
     Wait(500)
     DoScreenFadeIn(250)
-    CurrentVehicle = {}
+    currentVehicle = {}
 end)
 
 RegisterNetEvent('qb-occasion:client:refreshVehicles', function()
-    if Zone then
+    if zone then
         local vehicles = lib.callback.await('qb-occasions:server:getVehicles')
         despawnOccasionsVehicles()
         spawnOccasionsVehicles(vehicles)
@@ -300,7 +297,7 @@ RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
     if owned then
         if balance < 1 then
             lib.callback('qb-occasions:server:getVehicles', false, function(vehicles)
-                if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                if vehicles == nil or #vehicles < #Config.Zones[zone].VehicleSpots then
                     openSellContract(true)
                 else
                     exports.qbx_core:Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
@@ -315,13 +312,13 @@ RegisterNetEvent('qb-vehiclesales:client:SellVehicle', function()
 end)
 
 RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(data)
-    CurrentVehicle = occasionVehicles[Zone][data.Contract]
-    if not CurrentVehicle then
-        exports.qbx_core:Notify(Lang:t("error.not_for_sale"), 'error', 7500)
+    currentVehicle = occasionVehicles[zone][data.Contract]
+    if not currentVehicle then
+        exports.qbx_core:Notify(Lang:t('error.not_for_sale'), 'error', 7500)
         return
     end
 
-    local info = lib.callback.await('qb-occasions:server:getSellerInformation', false, CurrentVehicle.owner)
+    local info = lib.callback.await('qb-occasions:server:getSellerInformation', false, currentVehicle.owner)
     if info then
         info.charinfo = json.decode(info.charinfo)
     else
@@ -334,22 +331,22 @@ RegisterNetEvent('qb-vehiclesales:client:OpenContract', function(data)
         }
     end
 
-    openBuyContract(info, CurrentVehicle)
+    openBuyContract(info, currentVehicle)
 end)
 
 RegisterNetEvent('qb-occasions:client:MainMenu', function()
     lib.registerContext({
         id = 'qb_vehiclesales_menu',
-        title = Config.Zones[Zone].BusinessName,
+        title = Config.Zones[zone].BusinessName,
         options = {
             {
-                title =  Lang:t("menu.sell_vehicle"),
-                description = Lang:t("menu.sell_vehicle_help"),
+                title =  Lang:t('menu.sell_vehicle'),
+                description = Lang:t('menu.sell_vehicle_help'),
                 event = 'qb-vehiclesales:client:SellVehicle',
             },
             {
-                title =  Lang:t("menu.sell_back"),
-                description = Lang:t("menu.sell_back_help"),
+                title =  Lang:t('menu.sell_back'),
+                description = Lang:t('menu.sell_back_help'),
                 event = 'qb-occasions:client:SellBackCar',
             },
         },
@@ -367,7 +364,7 @@ CreateThread(function()
         SetBlipScale  (OccasionBlip, 0.75)
         SetBlipAsShortRange(OccasionBlip, true)
         SetBlipColour(OccasionBlip, 3)
-        BeginTextCommandSetBlipName("STRING")
+        BeginTextCommandSetBlipName('STRING')
         AddTextComponentSubstringPlayerName(Lang:t('info.used_vehicle_lot'))
         EndTextCommandSetBlipName(OccasionBlip)
     end
@@ -375,20 +372,20 @@ end)
 
 CreateThread(function()
     for k, cars in pairs(Config.Zones) do
-        SpawnZone[k] = CircleZone:Create(vector3(cars.SellVehicle.x, cars.SellVehicle.y, cars.SellVehicle.z), 3.0, {
-            name="OCSell"..k,
+        spawnZone[k] = CircleZone:Create(vector3(cars.SellVehicle.x, cars.SellVehicle.y, cars.SellVehicle.z), 3.0, {
+            name='OCSell'..k,
             debugPoly = false,
         })
 
-        SpawnZone[k]:onPlayerInOut(function(isPointInside)
-            if isPointInside and IsPedInAnyVehicle(cache.ped, false) then
-                exports['qbx-core']:DrawText(Lang:t("menu.interaction"), 'left')
-                TextShown = true
-                Listen4Control()
+        spawnZone[k]:onPlayerInOut(function(isPointInside)
+            if isPointInside and cache.vehicle then
+                exports['qbx-core']:DrawText(Lang:t('menu.interaction'), 'left')
+                textShown = true
+                listenForControl()
             else
                 listen = false
-                if TextShown then
-                    TextShown = false
+                if textShown then
+                    textShown = false
                     exports['qbx-core']:HideText()
                 end
             end
@@ -396,20 +393,20 @@ CreateThread(function()
         if not Config.UseTarget then
             for k2, v in pairs(Config.Zones[k].VehicleSpots) do
                 local VehicleZones = BoxZone:Create(vector3(v.x, v.y, v.z), 4.3, 3.6, {
-                    name="VehicleSpot"..k..k2,
+                    name='VehicleSpot'..k..k2,
                     debugPoly = false,
                     minZ = v.z-2,
                     maxZ = v.z+2,
                 })
                 VehicleZones:onPlayerInOut(function(isPointInside)
                     if isPointInside and IsCarSpawned(k2) then
-                        exports['qbx-core']:DrawText(Lang:t("menu.view_contract_int"), 'left')
-                        TextShown = true
-                        Listen4Control(k2)
+                        exports['qbx-core']:DrawText(Lang:t('menu.view_contract_int'), 'left')
+                        textShown = true
+                        listenForControl(k2)
                     else
                         listen = false
-                        if TextShown then
-                            TextShown = false
+                        if textShown then
+                            textShown = false
                             exports['qbx-core']:HideText()
                         end
                     end
@@ -422,22 +419,22 @@ end)
 ---- ** Mostly just to ensure you can restart resources live without issues, also improves the code slightly. ** ----
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
-    CreateZones()
+    createZones()
 end)
 
 RegisterNetEvent('QBCore:Client:OnPlayerUnload', function()
-    DeleteZones()
+    deleteZones()
 end)
 
 AddEventHandler('onResourceStart', function(resourceName)
-    if GetCurrentResourceName() == resourceName then
-        CreateZones()
+    if cache.resource == resourceName then
+        createZones()
     end
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
-    if GetCurrentResourceName() == resourceName then
-        DeleteZones()
+    if cache.resource == resourceName then
+        deleteZones()
         despawnOccasionsVehicles()
     end
 end)
