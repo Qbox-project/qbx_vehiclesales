@@ -231,12 +231,13 @@ end)
 RegisterNetEvent('qb-occasions:client:BuyFinished', function(vehData)
     DoScreenFadeOut(250)
     Wait(500)
-    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
+    local netId = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
         timeout -= 1
     end
+    local veh = NetToVeh(netId)
     SetEntityHeading(veh, Config.Zones[zone].BuyVehicle.w)
     SetVehicleFuelLevel(veh, 100)
     exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), 'success', 2500)
@@ -269,12 +270,13 @@ end)
 RegisterNetEvent('qb-occasions:client:ReturnOwnedVehicle', function(vehData)
     DoScreenFadeOut(250)
     Wait(500)
-    local veh = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
+    local netId = lib.callback.await('qbx_vehiclesales:server:spawnVehicle', false, vehData, Config.Zones[zone].BuyVehicle, false)
     local timeout = 100
     while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(10)
         timeout -= 1
     end
+    local veh = NetToVeh(netId)
     SetEntityHeading(veh, Config.Zones[zone].BuyVehicle.w)
     SetVehicleFuelLevel(veh, 100)
     exports.qbx_core:Notify(Lang:t('success.vehicle_bought'), 'success', 2500)
