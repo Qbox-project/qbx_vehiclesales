@@ -2,7 +2,7 @@ local VEHICLES = exports.qbx_core:GetVehiclesByName()
 
 local function generateOID()
     local num = math.random(1, 10) .. math.random(111, 999)
-    return "OC" .. num
+    return 'OC' .. num
 end
 
 lib.callback.register('qb-occasions:server:getVehicles', function()
@@ -12,8 +12,8 @@ lib.callback.register('qb-occasions:server:getVehicles', function()
     end
 end)
 
-lib.callback.register('qb-occasions:server:getSellerInformation', function(_, citizenid)
-    local result = MySQL.query.await('SELECT * FROM players WHERE citizenid = ?', {citizenid})
+lib.callback.register('qb-occasions:server:getSellerInformation', function(_, citizenId)
+    local result = MySQL.query.await('SELECT * FROM players WHERE citizenid = ?', {citizenId})
     if result[1] then
         return result[1]
     end
@@ -21,7 +21,7 @@ end)
 
 lib.callback.register('qb-vehiclesales:server:CheckModelName', function(_, plate)
     if plate then
-        return MySQL.scalar.await("SELECT vehicle FROM player_vehicles WHERE plate = ?", {plate})
+        return MySQL.scalar.await('SELECT vehicle FROM player_vehicles WHERE plate = ?', {plate})
     end
 end)
 
@@ -32,7 +32,7 @@ lib.callback.register('qbx_vehiclesales:server:spawnVehicle', function (source, 
     if not veh or veh == 0 then return end
     
     SetVehicleNumberPlateText(veh, vehicle.plate)
-    TriggerClientEvent("vehiclekeys:client:SetOwner", source, vehicle.plate)
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, vehicle.plate)
     return netId
 end)
 
@@ -46,14 +46,14 @@ RegisterNetEvent('qb-occasions:server:ReturnVehicle', function(vehicleData)
         return
     end
 
-    if result[1].seller ~= player.PlayerData.citizenid then
+    if result[1].seller ~= player.PlayerData.citizenId then
         exports.qbx_core:Notify(src, Lang:t('error.not_your_vehicle'), 'error', 3500)
         return
     end
 
     MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {player.PlayerData.license, player.PlayerData.citizenid, vehicleData.model, joaat(vehicleData.model), vehicleData.mods, vehicleData.plate, 0})
     MySQL.query('DELETE FROM occasion_vehicles WHERE occasionid = ? AND plate = ?', {vehicleData.oid, vehicleData.plate})
-    TriggerClientEvent("qb-occasions:client:ReturnOwnedVehicle", src, result[1])
+    TriggerClientEvent('qb-occasions:client:ReturnOwnedVehicle', src, result[1])
     TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
 end)
 
@@ -62,7 +62,7 @@ RegisterNetEvent('qb-occasions:server:sellVehicle', function(vehiclePrice, vehic
     local player = exports.qbx_core:GetPlayer(src)
     MySQL.query('DELETE FROM player_vehicles WHERE plate = ? AND vehicle = ?',{vehicleData.plate, vehicleData.model})
     MySQL.insert('INSERT INTO occasion_vehicles (seller, price, description, plate, model, mods, occasionid) VALUES (?, ?, ?, ?, ?, ?, ?)',{player.PlayerData.citizenid, vehiclePrice, vehicleData.desc, vehicleData.plate, vehicleData.model,json.encode(vehicleData.mods), generateOID()})
-    TriggerEvent("qb-log:server:CreateLog", "vehicleshop", "Vehicle for Sale", "red","**" .. GetPlayerName(src) .. "** has a " .. vehicleData.model .. " priced at " .. vehiclePrice)
+    TriggerEvent('qb-log:server:CreateLog', 'vehicleshop', 'Vehicle for Sale', 'red','**' .. GetPlayerName(src) .. '** has a ' .. vehicleData.model .. ' priced at ' .. vehiclePrice)
     TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
 end)
 
@@ -121,8 +121,8 @@ RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
             MySQL.update('UPDATE players SET money = ? WHERE citizenid = ?', {json.encode(buyerMoney), sellerCitizenId})
         end
     end
-    TriggerEvent("qb-log:server:CreateLog", "vehicleshop", "bought", "green", "**" .. GetPlayerName(src) .. "** has bought for " .. result[1].price .. " (" .. result[1].plate ..") from **" .. sellerCitizenId .. "**")
-    TriggerClientEvent("qb-occasions:client:BuyFinished", src, result[1])
+    TriggerEvent('qb-log:server:CreateLog', 'vehicleshop', 'bought', 'green', '**' .. GetPlayerName(src) .. '** has bought for ' .. result[1].price .. ' (' .. result[1].plate ..') from **' .. sellerCitizenId .. '**')
+    TriggerClientEvent('qb-occasions:client:BuyFinished', src, result[1])
     TriggerClientEvent('qb-occasion:client:refreshVehicles', -1)
     MySQL.query('DELETE FROM occasion_vehicles WHERE plate = ? AND occasionid = ?',{result[1].plate, result[1].occasionid})
     TriggerEvent('qb-phone:server:sendNewMailToOffline', sellerCitizenId, {
