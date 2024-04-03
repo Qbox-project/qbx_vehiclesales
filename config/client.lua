@@ -1,5 +1,5 @@
 return {
-    UseTarget = true,
+    UseTarget = GetConvar('UseTarget', 'false') == 'true',
     Zones = {
         SandyOccasions = {
             businessName = "Vehicle Sales Contract - Larry's Vehicle Sales",
