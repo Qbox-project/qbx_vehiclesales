@@ -8,30 +8,30 @@ version '1.0.0'
 ox_lib 'locale'
 
 shared_scripts {
-	'@ox_lib/init.lua',
-	'@qbx_core/modules/lib.lua',
+    '@ox_lib/init.lua',
+    '@qbx_core/modules/lib.lua',
 }
 
 client_scripts {
-	'@qbx_core/modules/playerdata.lua',
-	'client/main.lua'
+    '@qbx_core/modules/playerdata.lua',
+    'client/main.lua'
 }
 
 server_scripts {
-	'@oxmysql/lib/MySQL.lua',
-	'server/main.lua'
+    '@oxmysql/lib/MySQL.lua',
+    'server/main.lua'
 }
 
 ui_page 'html/ui.html'
 
 files {
-	'config/client.lua',
+    'config/client.lua',
     'locales/*.json',
-	'html/logo.svg',
-	'html/ui.css',
-	'html/ui.html',
-	'html/vue.min.js',
-	'html/ui.js'
+    'html/logo.svg',
+    'html/ui.css',
+    'html/ui.html',
+    'html/vue.min.js',
+    'html/ui.js'
 }
 
 lua54 'yes'
