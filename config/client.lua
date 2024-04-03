@@ -1,7 +1,7 @@
 return {
-    UseTarget = GetConvar('UseTarget', 'false') == 'true',
-    Zones = {
-        SandyOccasions = {
+    useTarget = false,
+    zones = {
+        sandyOccasions = {
             businessName = "Vehicle Sales Contract - Larry's Vehicle Sales",
             sellVehicle = vec4(1235.61, 2733.44, 37.4, 0.42),
             buyVehicle = vec4(1213.31, 2735.4, 38.27, 182.5),
