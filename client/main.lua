@@ -7,7 +7,7 @@ local occasionVehicles = {}
 
 local function spawnOccasionsVehicles(vehicles)
     if zone then
-        local oSlot = config.zones[zone].spots
+        local oSlot = config.zones[zone].vehicleSpots
         if not occasionVehicles[zone] then occasionVehicles[zone] = {} end
         if vehicles then
             for i = 1, #vehicles, 1 do
@@ -54,7 +54,7 @@ end
 
 local function despawnOccasionsVehicles()
     if not zone then return end
-    local oSlot = config.zones[zone].spots
+    local oSlot = config.zones[zone].vehicleSpots
     for i = 1, #oSlot, 1 do
         local loc = oSlot[i]
         local oldVehicle = GetClosestVehicle(loc.x, loc.y, loc.z, 1.3, 0, 70)
@@ -132,7 +132,7 @@ local function createZones()
 
         local SellSpot = lib.zones.poly({
             name = k,
-            points = v.points,
+            points = v.polyzone,
             thickness = 50,
             debug = false,
             onEnter = function(self)
@@ -268,7 +268,7 @@ AddEventHandler('qb-vehiclesales:client:SellVehicle', function()
     end
 
     local vehicles = lib.callback.await('qb-occasions:server:getVehicles', false)
-    if not vehicles or #vehicles < #config.zones[zone].spots then
+    if not vehicles or #vehicles < #config.zones[zone].vehicleSpots then
         openSellContract(true)
     else
         exports.qbx_core:Notify(locale('error.no_space_on_lot'), 'error', 3500)
@@ -345,7 +345,7 @@ CreateThread(function()
         })
 
         if not config.useTarget then
-            for k2, v in pairs(config.zones[k].spots) do
+            for k2, v in pairs(config.zones[k].vehicleSpots) do
                 lib.zones.box({
                     coords = vec3(v.x, v.y, v.z),
                     size = vec3(4.0, 5.0, 3.0),

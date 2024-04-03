@@ -5,13 +5,13 @@ return {
             businessName = "Vehicle Sales Contract - Larry's Vehicle Sales",
             sellVehicle = vec4(1235.61, 2733.44, 37.4, 0.42),
             buyVehicle = vec4(1213.31, 2735.4, 38.27, 182.5),
-            points = {
+            polyzone = { -- The points that form the polyzone.
                 vec3(1338.3748779297, 2645.0153808594, 36.0),
                 vec3(1098.9381103516, 2621.7487792969, 36.0),
                 vec3(1117.9478759766, 2822.0729980469, 36.0),
                 vec3(1370.98828125, 2859.197265625, 36.0)
             },
-            spots = {
+            vehicleSpots = { -- The spots in which for sale cars are placed.
                 vec4(1237.07, 2699, 38.27, 1.5),
                 vec4(1232.98, 2698.92, 38.27, 2.5),
                 vec4(1228.9, 2698.78, 38.27, 3.5),
