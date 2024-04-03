@@ -135,7 +135,7 @@ local function createZones()
             name = k,
             points = v.points,
             thickness = 50,
-            debug = true,
+            debug = false,
             onEnter = function(self)
                 zone = self.name
                 local vehicles = lib.callback.await('qb-occasions:server:getVehicles', false)
