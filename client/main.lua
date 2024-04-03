@@ -2,7 +2,6 @@ local config = require 'config.client'
 local zone
 local activeZone = {}
 local currentVehicle = {}
-local spawnZone = {}
 local entityZones = {}
 local occasionVehicles = {}
 
@@ -321,7 +320,7 @@ end)
 
 CreateThread(function()
     for k, cars in pairs(config.Zones) do
-        spawnZone[k] = lib.zones.box({
+        lib.zones.box({
             coords = vec3(cars.sellVehicle.x, cars.sellVehicle.y, cars.sellVehicle.z),
             size = vec3(3.0, 4.0, 3.0),
             rotation = 0,
@@ -347,7 +346,7 @@ CreateThread(function()
 
         if not config.UseTarget then
             for k2, v in pairs(config.Zones[k].spots) do
-                local VehicleZones = lib.zones.box({
+                lib.zones.box({
                     coords = vec3(v.x, v.y, v.z),
                     size = vec3(4.0, 5.0, 3.0),
                     rotation = 0,
