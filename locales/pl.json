@@ -1,0 +1,48 @@
+{
+    "error": {
+        "not_your_vehicle": "To nie jest twój pojazd.",
+        "vehicle_does_not_exist": "Pojazd nie istnieje",
+        "not_enough_money": "Nie masz wystarczająco pieniędzy",
+        "finish_payments": "Musisz zakończyć spłatę za ten pojazd, zanim będziesz mógł/mogła go sprzedać.",
+        "no_space_on_lot": "Nie ma miejsca na twoje auto na parkingu!",
+        "not_in_veh": "Nie jesteś w pojeździe!",
+        "not_for_sale": "Ten pojazd nie jest na sprzedaż!"
+    },
+    "menu": {
+        "view_contract": "Zobacz umowę",
+        "view_contract_int": "[E] Zobacz umowę",
+        "sell_vehicle": "Sprzedaj pojazd",
+        "sell_vehicle_help": "Sprzedaj pojazd innym obywatelom!",
+        "sell_back": "Sprzedaj z powrotem samochód!",
+        "sell_back_help": "Sprzedaj swój samochód z powrotem za obniżoną cenę!",
+        "interaction": "[E] Sprzedaj pojazd"
+    },
+    "success": {
+        "sold_car_for_price": "Sprzedano swój samochód za $%s",
+        "car_up_for_sale": "Twój samochód został wystawiony na sprzedaż! Cena - $%s",
+        "vehicle_bought": "Pojazd zakupiony"
+    },
+    "info": {
+        "confirm_cancel": "~g~Y~w~ - Potwierdź / ~r~N~w~ - Anuluj ~g~",
+        "vehicle_returned": "Twój pojazd został zwrócony",
+        "used_vehicle_lot": "Parking używanych samochodów",
+        "sell_vehicle_to_dealer": "[~g~E~w~] - Sprzedaj pojazd dealerowi za ~g~$%s",
+        "view_contract": "[~g~E~w~] - Zobacz umowę pojazdu",
+        "cancel_sale": "[~r~G~w~] - Anuluj sprzedaż pojazdu",
+        "model_price": "%s, Cena: ~g~$%s",
+        "are_you_sure": "Czy na pewno nie chcesz już sprzedawać swojego pojazdu?",
+        "yes_no": "[~g~7~w~] - Tak | [~r~8~w~] - Nie",
+        "place_vehicle_for_sale": "[~g~E~w~] - Wystaw pojazd na sprzedaż prywatną"
+    },
+    "charinfo": {
+        "firstname": "nieznane",
+        "lastname": "nieznane",
+        "account": "Konto nieznane..",
+        "phone": "numer telefonu nieznany.."
+    },
+    "mail": {
+        "sender": "Larrys RV Sales",
+        "subject": "Sprzedano pojazd!",
+        "message": "Zarobiono $%s ze sprzedaży swojego %s."
+    }
+}
