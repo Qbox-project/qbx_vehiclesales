@@ -1,37 +1,48 @@
 {
-    "error": {
-        "not_your_vehicle": "Bu senin aracın değil..",
-        "vehicle_does_not_exist": "Araç mevcut değil",
-        "not_enough_money": "Yeterli paran yok",
-        "finish_payments": "Bu aracı satmadan önce borcunu ödemelisin..",
-        "no_space_on_lot": "Otoparkta arabanız için yer yok!"
-    },
-    "success": {
-        "sold_car_for_price": "Arabanızı $%s karşılığında sattınız",
-        "car_up_for_sale": "Arabanız satışa çıkarıldı! Fiyat - $%s",
-        "vehicle_bought": "Araç Satın Alındı"
-    },
-    "info": {
-        "confirm_cancel": "~g~Y~w~ - Onayla / ~r~N~w~ - İptal Et ~g~",
-        "vehicle_returned": "Aracınız iade edildi",
-        "used_vehicle_lot": "İkinci El Araba",
-        "sell_vehicle_to_dealer": "[~g~E~w~] - Aracı Satıcıya $%s karşılığında Sat",
-        "view_contract": "[~g~E~w~] - Araç Sözleşmesini Görüntüle",
-        "cancel_sale": "[~r~G~w~] - Araç Satışını İptal Et",
-        "model_price": "%s, Fiyat: ~g~$%s",
-        "are_you_sure": "Artık aracınızı satmak istemediğinizden emin misiniz?",
-        "yes_no": "[~g~7~w~] - Evet | [~r~8~w~] - Hayır",
-        "place_vehicle_for_sale": "[~g~E~w~] - Sahibinden Satılık Aracı Yerleştirin"
-    },
-    "charinfo": {
-        "firstname": "veri",
-        "lastname": "yok",
-        "account": "Hesap bilinmiyor..",
-        "phone": "telefon numarası bilinmiyor.."
-    },
-    "mail": {
-        "sender": "Sahibinden",
-        "subject": "Bir araç sattın!",
-        "message": "%s satışından $%s kazandınız."
-    }
+  "error": {
+    "not_your_vehicle": "Bu araç sana ait değil.",
+    "vehicle_does_not_exist": "Araç mevcut değil.",
+    "not_enough_money": "Yeterli paran yok.",
+    "finish_payments": "Bu aracı satmadan önce borçlarını ödemelisin.",
+    "no_space_on_lot": "Otoparkta araban için yer yok!",
+    "not_in_veh": "Araçta değilsin!",
+    "not_for_sale": "Bu araç satışa sunulmamış!"
+  },
+  "menu": {
+    "view_contract": "Sözleşmeyi Görüntüle",
+    "view_contract_int": "[E] Sözleşmeyi Görüntüle",
+    "sell_vehicle": "Aracı Sat",
+    "sell_vehicle_help": "Aracını vatandaşlara sat.",
+    "sell_back": "Arabayı Geri Sat!",
+    "sell_back_help": "Arabanı indirimli fiyata doğrudan geri sat.",
+    "interaction": "[E] Aracı Sat"
+  },
+  "success": {
+    "sold_car_for_price": "Arabanı $%s karşılığında sattın.",
+    "car_up_for_sale": "Araban satışa sunuldu! Fiyat - $%s",
+    "vehicle_bought": "Araç Satın Alındı"
+  },
+  "info": {
+    "confirm_cancel": "~g~Y~w~ - Onayla / ~r~N~w~ - İptal ~g~",
+    "vehicle_returned": "Aracın geri verildi.",
+    "used_vehicle_lot": "İkinci El Araç Pazarı",
+    "sell_vehicle_to_dealer": "[~g~E~w~] - Aracı bayiye ~g~$%s'ye sat",
+    "view_contract": "[~g~E~w~] - Araç Sözleşmesini Görüntüle",
+    "cancel_sale": "[~r~G~w~] - Araç Satışını İptal Et",
+    "model_price": "%s, Fiyat: ~g~$%s",
+    "are_you_sure": "Aracını satmayı artık istemediğinden emin misin?",
+    "yes_no": "[~g~7~w~] - Evet | [~r~8~w~] - Hayır",
+    "place_vehicle_for_sale": "[~g~E~w~] - Aracı Sahibinden Satışa Koy"
+  },
+  "charinfo": {
+    "firstname": "Bilinmiyor",
+    "lastname": "Bilinmiyor",
+    "account": "Hesap bilinmiyor..",
+    "phone": "Telefon numarası bilinmiyor.."
+  },
+  "mail": {
+    "sender": "Larrys RV Satışları",
+    "subject": "Bir aracı sattın!",
+    "message": "%s aracını satarak $%s kazandın."
+  }
 }
