@@ -41,7 +41,7 @@ lib.callback.register('qbx_vehiclesales:server:checkVehicleOwner', function(sour
 
     if result and result.id then
         local financeRow = MySQL.single.await('SELECT * FROM vehicle_financing WHERE vehicleId = ?', {result.id})
-        return true, financeRow?.balance
+        return true, financeRow?.balance or 0
     end
 
     return false
@@ -94,9 +94,11 @@ RegisterNetEvent('qb-occasions:server:sellVehicleBack', function(vehData)
     local plate = vehData.plate
     local price = getVehPrice(vehData.model)
     local payout = math.floor(price * 0.5) -- This will give you half of the cars value
-    player.Functions.AddMoney('bank', payout)
-    exports.qbx_core:Notify(src, (locale('success.sold_car_for_price'):format(payout)), 'success', 5500)
-    MySQL.query('DELETE FROM player_vehicles WHERE plate = ?', {plate})
+    local success = MySQL.query.await('DELETE FROM player_vehicles WHERE plate = ? AND citizenid = ?', {plate, player.PlayerData.citizenid})
+    if success and success.affectedRows > 0 then -- only pay out after we delete the vehicle
+        player.Functions.AddMoney('bank', payout)
+        exports.qbx_core:Notify(src, (locale('success.sold_car_for_price'):format(payout)), 'success', 5500)
+    end
 end)
 
 RegisterNetEvent('qb-occasions:server:buyVehicle', function(vehicleData)
