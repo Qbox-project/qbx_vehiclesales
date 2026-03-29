@@ -1,0 +1,48 @@
+{
+    "error": {
+        "not_your_vehicle": "これはあなたの車ではありません..",
+        "vehicle_does_not_exist": "車両が存在しません",
+        "not_enough_money": "お金が足りません",
+        "finish_payments": "売却する前にこの車のローンを完済する必要があります..",
+        "no_space_on_lot": "駐車場にスペースがありません！",
+        "not_in_veh": "車両に乗っていません！",
+        "not_for_sale": "この車両は売り物ではありません！"
+    },
+    "menu": {
+        "view_contract": "契約書を見る",
+        "view_contract_int": "[E] 契約書を見る",
+        "sell_vehicle": "車両を売る",
+        "sell_vehicle_help": "他の市民に車両を売る！",
+        "sell_back": "車を買い戻させる！",
+        "sell_back_help": "値引きした金額で車を直接売り戻す！",
+        "interaction": "[E] 車両を売る"
+    },
+    "success": {
+        "sold_car_for_price": "車を $%s で売りました",
+        "car_up_for_sale": "車が販売に出されました！価格 - $%s",
+        "vehicle_bought": "車両を購入しました"
+    },
+    "info": {
+        "confirm_cancel": "~g~Y~w~ - 確認 / ~r~N~w~ - キャンセル ~g~",
+        "vehicle_returned": "車両が返却されました",
+        "used_vehicle_lot": "中古車販売場",
+        "sell_vehicle_to_dealer": "[~g~E~w~] - ~g~$%s でディーラーに車両を売る",
+        "view_contract": "[~g~E~w~] - 車両契約書を見る",
+        "cancel_sale": "[~r~G~w~] - 車両売却をキャンセル",
+        "model_price": "%s, 価格：~g~$%s",
+        "are_you_sure": "本当に車両の販売を取り消しますか？",
+        "yes_no": "[~g~7~w~] - はい | [~r~8~w~] - いいえ",
+        "place_vehicle_for_sale": "[~g~E~w~] - 車両を個人出品する"
+    },
+    "charinfo": {
+        "firstname": "不明",
+        "lastname": "不明",
+        "account": "口座情報不明..",
+        "phone": "電話番号不明.."
+    },
+    "mail": {
+        "sender": "ラリーのRV販売",
+        "subject": "車両を売却しました！",
+        "message": "$%s を %s の売却で獲得しました。"
+    }
+}
