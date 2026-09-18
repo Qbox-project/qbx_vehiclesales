@@ -4,7 +4,18 @@
         "vehicle_does_not_exist": "Voertuig bestaat niet",
         "not_enough_money": "Je hebt geen genoeg geld",
         "finish_payments": "Je moet dit voertuig afbetalen voordat je het kunt verkopen..",
-        "no_space_on_lot": "Er is geen ruimte voor je voertuig op de kavel!"
+        "no_space_on_lot": "Er is geen ruimte voor je voertuig op de kavel!",
+        "not_in_veh": "Je zit niet in een voertuig!",
+        "not_for_sale": "Dit voertuig is NIET te koop!"
+    },
+    "menu": {
+        "view_contract": "Contract bekijken",
+        "view_contract_int": "[E] Bekijk contract",
+        "sell_vehicle": "Voertuig verkopen",
+        "sell_vehicle_help": "Verkoop een voertuig aan medeburgers!",
+        "sell_back": "Auto terugverkopen!",
+        "sell_back_help": "Verkoop je auto direct terug voor een lagere prijs!",
+        "interaction": "[E] Voertuig verkopen"
     },
     "success": {
         "sold_car_for_price": "je hebt je auto verkocht voor $%s",
